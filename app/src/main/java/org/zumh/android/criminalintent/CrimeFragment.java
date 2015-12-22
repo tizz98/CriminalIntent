@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,7 @@ import java.util.UUID;
 public class CrimeFragment extends Fragment {
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String DIALOG_DATE = "DialogDate";
+    private static final String DIALOG_TIME = "DialogTime";
 
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_DATE_TIME = 1;
@@ -30,6 +32,7 @@ public class CrimeFragment extends Fragment {
     private Crime mCrime;
     private EditText mTitleField;
     private Button mDateButton;
+    private Button mTimeButton;
     private CheckBox mSolvedCheckBox;
 
     public static CrimeFragment newInstance(UUID crimeId) {
@@ -51,14 +54,26 @@ public class CrimeFragment extends Fragment {
 
     public CharSequence formatCrimeDate(Crime crime, String dateFormat) {
         if (dateFormat == null) {
-            dateFormat = "EEE MMM dd hh:mm:ss zzz yyyy";
+            dateFormat = "EEE MMM dd yyyy";
         }
 
         return android.text.format.DateFormat.format(dateFormat, crime.getDate());
     }
 
-    private void updateDate() {
-        mDateButton.setText(formatCrimeDate(mCrime, null));
+    private void updateDate(String dateFormat) {
+        mDateButton.setText(formatCrimeDate(mCrime, dateFormat));
+    }
+
+    public CharSequence formatCrimeTime(Crime crime, String dateFormat) {
+        if (dateFormat == null) {
+            dateFormat = "hh:mm:ss zzz";
+        }
+
+        return android.text.format.DateFormat.format(dateFormat, crime.getDate());
+    }
+    
+    private void updateTime(String dateFormat) {
+        mTimeButton.setText(formatCrimeTime(mCrime, dateFormat));
     }
 
     @Override
@@ -86,7 +101,7 @@ public class CrimeFragment extends Fragment {
         });
 
         mDateButton = (Button) v.findViewById(R.id.crime_date);
-        updateDate();
+        updateDate(null);
         mDateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -94,6 +109,18 @@ public class CrimeFragment extends Fragment {
                 DatePickerFragment dialog = DatePickerFragment.newInstance(mCrime.getDate());
                 dialog.setTargetFragment(CrimeFragment.this, REQUEST_DATE);
                 dialog.show(manager, DIALOG_DATE);
+            }
+        });
+
+        mTimeButton = (Button) v.findViewById(R.id.crime_time);
+        updateTime(null);
+        mTimeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager manager = getFragmentManager();
+                TimePickerFragment dialog = TimePickerFragment.newInstance(mCrime.getDate());
+                dialog.setTargetFragment(CrimeFragment.this, REQUEST_DATE_TIME);
+                dialog.show(manager, DIALOG_TIME);
             }
         });
 
@@ -119,7 +146,7 @@ public class CrimeFragment extends Fragment {
         if (requestCode == REQUEST_DATE) {
             Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
             mCrime.setDate(date);
-            updateDate();
+            updateDate(null);
         } else if (requestCode == REQUEST_DATE_TIME) {
             Date date = (Date) data.getSerializableExtra(TimePickerFragment.EXTRA_TIME_DATE);
 
@@ -136,6 +163,7 @@ public class CrimeFragment extends Fragment {
 
             Date newDate = new GregorianCalendar(year, month, day, hour, minute).getTime();
             mCrime.setDate(newDate);
+            updateTime(null);
         }
     }
 }
