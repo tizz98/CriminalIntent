@@ -3,6 +3,7 @@ package org.zumh.android.criminalintent;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
@@ -22,6 +23,7 @@ import java.util.UUID;
 
 public class CrimeFragment extends Fragment {
     private static final String ARG_CRIME_ID = "crime_id";
+    private static final String ARG_NEW_CRIME = "new_crime";
     private static final String DIALOG_DATE = "DialogDate";
     private static final String DIALOG_TIME = "DialogTime";
 
@@ -33,10 +35,13 @@ public class CrimeFragment extends Fragment {
     private Button mDateButton;
     private Button mTimeButton;
     private CheckBox mSolvedCheckBox;
+    private FloatingActionButton mDeleteFloatingActionButton;
+    private boolean mIsNewCrime;
 
-    public static CrimeFragment newInstance(UUID crimeId) {
+    public static CrimeFragment newInstance(UUID crimeId, boolean isNewCrime) {
         Bundle args = new Bundle();
         args.putSerializable(ARG_CRIME_ID, crimeId);
+        args.putBoolean(ARG_NEW_CRIME, isNewCrime);
 
         CrimeFragment fragment = new CrimeFragment();
         fragment.setArguments(args);
@@ -49,6 +54,8 @@ public class CrimeFragment extends Fragment {
 
         UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
         mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
+
+        mIsNewCrime = getArguments().getBoolean(ARG_NEW_CRIME);
     }
 
     public CharSequence formatCrimeDate(Crime crime, String dateFormat) {
@@ -132,6 +139,19 @@ public class CrimeFragment extends Fragment {
                 mCrime.setSolved(isChecked);
             }
         });
+
+        mDeleteFloatingActionButton = (FloatingActionButton) v.findViewById(R.id.crime_delete_fab);
+        mDeleteFloatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CrimeLab.get(getActivity()).removeCrime(mCrime);
+                getActivity().finish();
+            }
+        });
+
+        if (mIsNewCrime) {
+            mDeleteFloatingActionButton.hide();
+        }
 
         return v;
     }
