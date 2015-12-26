@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.provider.ContactsContract.CommonDataKinds;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -45,6 +46,7 @@ public class CrimeFragment extends Fragment {
     private FloatingActionButton mDeleteFloatingActionButton;
     private Button mReportButton;
     private Button mSuspectButton;
+    private Button mSuspectCallButton;
     private boolean mIsNewCrime;
 
     public static CrimeFragment newInstance(UUID crimeId, boolean isNewCrime) {
@@ -90,7 +92,7 @@ public class CrimeFragment extends Fragment {
         String dateFormat = "EEE, MMM dd";
         String dateString = DateFormat.format(dateFormat, mCrime.getDate()).toString();
 
-        String suspect = mCrime.getSuspect();
+        String suspect = mCrime.getSuspectName();
         if (suspect == null) {
             suspect = getString(R.string.crime_report_no_suspect);
         } else {
@@ -207,8 +209,22 @@ public class CrimeFragment extends Fragment {
             }
         });
 
-        if (mCrime.getSuspect() != null) {
-            mSuspectButton.setText(mCrime.getSuspect());
+        mSuspectCallButton = (Button) v.findViewById(R.id.crime_call_suspect);
+        mSuspectCallButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Uri uri = Uri.parse("tel:" + mCrime.getSuspectPhoneNumber());
+                Intent i = new Intent(Intent.ACTION_DIAL, uri);
+                startActivity(i);
+            }
+        });
+
+        if (mCrime.getSuspectName() != null) {
+            mSuspectButton.setText(mCrime.getSuspectName());
+        }
+
+        if (!mCrime.canCallSuspect()) {
+            mSuspectCallButton.setEnabled(false);
         }
 
         PackageManager packageManager = getActivity().getPackageManager();
@@ -250,10 +266,12 @@ public class CrimeFragment extends Fragment {
             Uri contactUri = data.getData();
             // Specify which fields you want your query to return values for
             String[] queryFields = new String[] {
-                    ContactsContract.Contacts.DISPLAY_NAME
+                    ContactsContract.Contacts.DISPLAY_NAME,
+                    ContactsContract.Contacts._ID,
+                    ContactsContract.Contacts.HAS_PHONE_NUMBER
             };
             // Perform your query - the contactUri is like a "where" clause here
-            Cursor c = getActivity().getContentResolver().query(contactUri, queryFields, null,null, null);
+            Cursor c = getActivity().getContentResolver().query(contactUri, queryFields, null, null, null);
 
             try {
                 // Double check that you actually got results
@@ -261,11 +279,27 @@ public class CrimeFragment extends Fragment {
                     return;
                 }
 
-                // Pull out the first column of the first row of data - that is your suspect's name
                 c.moveToFirst();
-                String suspect = c.getString(0);
-                mCrime.setSuspect(suspect);
+                String suspect = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                mCrime.setSuspectName(suspect);
                 mSuspectButton.setText(suspect);
+
+                String contactId = c.getString(c.getColumnIndex(ContactsContract.Contacts._ID));
+                boolean hasPhoneNumber = c.getString(c.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)).equals("1");
+
+                if (hasPhoneNumber) {
+                    Cursor phones = getActivity().getContentResolver().query(CommonDataKinds.Phone.CONTENT_URI,
+                            null, CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[] { contactId }, null);
+
+                    try {
+                        phones.moveToFirst();
+                        String number = phones.getString(phones.getColumnIndex(CommonDataKinds.Phone.NUMBER));
+                        mCrime.setSuspectPhoneNumber(number);
+                        mSuspectCallButton.setEnabled(true);
+                    } finally {
+                        phones.close();
+                    }
+                }
             } finally {
                 c.close();
             }
