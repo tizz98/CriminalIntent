@@ -80,7 +80,7 @@ public class CrimeFragment extends Fragment {
     }
 
     private String getCrimeReport() {
-        String solvedString = null;
+        String solvedString;
         if (mCrime.isSolved()) {
             solvedString = getString(R.string.crime_report_solved);
         } else {
