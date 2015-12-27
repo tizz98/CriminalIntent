@@ -36,7 +36,6 @@ import java.util.UUID;
 
 public class CrimeFragment extends Fragment {
     private static final String ARG_CRIME_ID = "crime_id";
-    private static final String ARG_NEW_CRIME = "new_crime";
     private static final String DIALOG_DATE = "DialogDate";
     private static final String DIALOG_TIME = "DialogTime";
     private static final String DIALOG_PHOTO = "DialogPhoto";
@@ -59,12 +58,10 @@ public class CrimeFragment extends Fragment {
     private Button mSuspectCallButton;
     private ImageButton mPhotoButton;
     private ImageView mPhotoView;
-    private boolean mIsNewCrime;
 
-    public static CrimeFragment newInstance(UUID crimeId, boolean isNewCrime) {
+    public static CrimeFragment newInstance(UUID crimeId) {
         Bundle args = new Bundle();
         args.putSerializable(ARG_CRIME_ID, crimeId);
-        args.putBoolean(ARG_NEW_CRIME, isNewCrime);
 
         CrimeFragment fragment = new CrimeFragment();
         fragment.setArguments(args);
@@ -78,8 +75,6 @@ public class CrimeFragment extends Fragment {
         UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
         mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
         mPhotoFile = CrimeLab.get(getActivity()).getPhotoFile(mCrime);
-
-        mIsNewCrime = getArguments().getBoolean(ARG_NEW_CRIME);
     }
 
     public CharSequence formatCrimeDate(Crime crime, String dateFormat) {
@@ -203,10 +198,6 @@ public class CrimeFragment extends Fragment {
                 getActivity().finish();
             }
         });
-
-        if (mIsNewCrime) {
-            mDeleteFloatingActionButton.hide();
-        }
 
         mReportButton = (Button) v.findViewById(R.id.crime_report);
         mReportButton.setOnClickListener(new View.OnClickListener() {

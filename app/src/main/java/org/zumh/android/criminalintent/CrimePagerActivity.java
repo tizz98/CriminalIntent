@@ -14,15 +14,13 @@ import java.util.UUID;
 
 public class CrimePagerActivity extends AppCompatActivity {
     private static final String EXTRA_CRIME_ID = "org.zumh.android.criminalintent.crime_id";
-    private static final String EXTRA_NEW_CRIME = "org.zumh.android.criminalintent.new_crime";
 
     private ViewPager mViewPager;
     private List<Crime> mCrimes;
 
-    public static Intent newIntent(Context packageContext, UUID crimeId, boolean isNewCrime) {
+    public static Intent newIntent(Context packageContext, UUID crimeId) {
         Intent intent = new Intent(packageContext, CrimePagerActivity.class);
         intent.putExtra(EXTRA_CRIME_ID, crimeId);
-        intent.putExtra(EXTRA_NEW_CRIME, isNewCrime);
         return intent;
     }
 
@@ -32,7 +30,6 @@ public class CrimePagerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_crime_pager);
 
         UUID crimeId = (UUID) getIntent().getSerializableExtra(EXTRA_CRIME_ID);
-        final boolean isNewCrime = getIntent().getBooleanExtra(EXTRA_NEW_CRIME, false);
 
         mViewPager = (ViewPager) findViewById(R.id.activity_crime_pager_view_pager);
 
@@ -42,7 +39,7 @@ public class CrimePagerActivity extends AppCompatActivity {
             @Override
             public Fragment getItem(int position) {
                 Crime crime = mCrimes.get(position);
-                return CrimeFragment.newInstance(crime.getId(), isNewCrime);
+                return CrimeFragment.newInstance(crime.getId());
             }
 
             @Override
