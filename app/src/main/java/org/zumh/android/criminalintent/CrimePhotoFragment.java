@@ -42,7 +42,7 @@ public class CrimePhotoFragment extends DialogFragment {
         mTextView = (TextView) v.findViewById(R.id.dialog_crime_no_img_txt);
         File file = crimeLab.getPhotoFile(crime);
 
-        if (file != null) {
+        if (file != null && file.exists()) {
             Bitmap bitmap = PictureUtils.getScaledBitmap(file.getPath(), getActivity());
             mImageView.setImageBitmap(bitmap);
         } else {
