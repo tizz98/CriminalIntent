@@ -5,28 +5,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/crime_title_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:text="@string/crime_title_label"
-        style="?android:listSeparatorTextViewStyle"/>
-
-    <EditText
-        android:id="@+id/crime_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/crime_title_text_view"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:hint="@string/crime_title_hint"/>
+    <include
+        android:id="@+id/camera_title"
+        layout="@layout/view_camera_and_title"/>
 
     <TextView
         android:id="@+id/crime_detail_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/crime_title"
+        android:layout_below="@+id/camera_title"
         android:text="@string/crime_details_label"
         style="?android:listSeparatorTextViewStyle"/>
 

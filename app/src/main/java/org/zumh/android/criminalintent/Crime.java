@@ -68,4 +68,8 @@ public class Crime {
     public boolean canCallSuspect() {
         return (mSuspectName != null && mSuspectPhoneNumber != null);
     }
+
+    public String getPhotoFilename() {
+        return "IMG_" + getId() + ".jpg";
+    }
 }
