@@ -213,8 +213,8 @@ public class CrimeFragment extends Fragment {
                                         .setType("text/plain")
                                         .setText(getCrimeReport())
                                         .setSubject(getString(R.string.crime_report_subject))
-                                        .getIntent()
-                                        .setPackage("org.zumh.android.criminalintent");
+                                        .getIntent();
+                i = Intent.createChooser(i, getString(R.string.send_report));
                 startActivity(i);
             }
         });
