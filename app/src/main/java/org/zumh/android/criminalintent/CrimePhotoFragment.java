@@ -9,13 +9,16 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
+import java.io.File;
 import java.util.UUID;
 
 public class CrimePhotoFragment extends DialogFragment {
     private static final String ARG_CRIME_ID = "crime_id";
 
     private ImageView mImageView;
+    private TextView mTextView;
 
     public static CrimePhotoFragment newInstance(UUID crimeId) {
         Bundle args = new Bundle();
@@ -36,10 +39,24 @@ public class CrimePhotoFragment extends DialogFragment {
         View v = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_crime_photo, null);
 
         mImageView = (ImageView) v.findViewById(R.id.dialog_crime_photo_iv);
-        Bitmap bitmap = PictureUtils.getScaledBitmap(crimeLab.getPhotoFile(crime).getPath(), getActivity());
-        mImageView.setImageBitmap(bitmap);
+        mTextView = (TextView) v.findViewById(R.id.dialog_crime_no_img_txt);
+        File file = crimeLab.getPhotoFile(crime);
+
+        if (file != null) {
+            Bitmap bitmap = PictureUtils.getScaledBitmap(file.getPath(), getActivity());
+            mImageView.setImageBitmap(bitmap);
+        } else {
+            mImageView.setVisibility(View.GONE);
+        }
 
         mImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
+
+        mTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dismiss();
